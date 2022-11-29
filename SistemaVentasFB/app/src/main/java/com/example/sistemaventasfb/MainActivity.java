@@ -25,7 +25,7 @@ import java.util.Map;
 public class MainActivity extends AppCompatActivity {
     //se genera un objeto para conectarse a la base de datos de firebase - firebase
     FirebaseFirestore db = FirebaseFirestore.getInstance();
-
+    String idAutomatic;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +43,8 @@ public class MainActivity extends AppCompatActivity {
         ImageButton btnsales = findViewById(R.id.btnsales);
         ImageButton btnlist = findViewById(R.id.btnlist );
         //Eventos
+
+
         btnsearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -57,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
                                     if (!task.getResult().isEmpty()) {
                                         //La instantanea tiene informacion del documento
                                         for (QueryDocumentSnapshot document : task.getResult()) {
+                                            idAutomatic = document.getId();
                                             //Mostrar la información en cada uno de los objetos referenciados
                                             fullname.setText(document.getString("fullname"));
                                             email.setText(document.getString("email"));
@@ -72,6 +75,34 @@ public class MainActivity extends AppCompatActivity {
 
                         }
                         });
+
+                btnedit.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Map<String, Object> mseller = new HashMap<>();
+                        mseller.put("idseller", idseller.getText().toString());
+                        mseller.put("fullname", fullname.getText().toString());
+                        mseller.put("email", email.getText().toString());
+                        mseller.put("password", password.getText().toString());
+                        mseller.put("totalcomision", 0);
+
+                        db.collection("seller").document(idAutomatic)
+                                .set(mseller)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void unused) {
+                                        Toast.makeText(getApplicationContext(), "Vendedor Actualizado Correctamente...", Toast.LENGTH_SHORT).show();
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(getApplicationContext(), "Error al guardar los datos del vendedor...", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                    }
+                });
+
                 btnsave.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
