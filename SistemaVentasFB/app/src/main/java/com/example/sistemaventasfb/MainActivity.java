@@ -44,6 +44,29 @@ public class MainActivity extends AppCompatActivity {
         ImageButton btnlist = findViewById(R.id.btnlist );
         //Eventos
 
+        btndelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if(totalcomision.getText().toString().equals("0.0"))  {
+                    db.collection("seller").document(idAutomatic)
+                            .delete()
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void unused) {
+
+                                    Toast.makeText(MainActivity.this, "Cliente borrado correctamente...", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                }
+                else {
+                    Toast.makeText(MainActivity.this, "Vendedor con venta existente...", Toast.LENGTH_SHORT).show();
+                }
+
+
+            }
+        });
+
 
         btnsearch.setOnClickListener(new View.OnClickListener() {
             @Override
