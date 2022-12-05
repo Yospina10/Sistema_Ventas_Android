@@ -3,6 +3,7 @@ package com.example.sistemaventasfb;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -18,6 +19,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.core.Query;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     //se genera un objeto para conectarse a la base de datos de firebase - firebase
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     String idAutomatic;
+    String mTotalcomision;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +46,37 @@ public class MainActivity extends AppCompatActivity {
         ImageButton btnsales = findViewById(R.id.btnsales);
         ImageButton btnlist = findViewById(R.id.btnlist );
         //Eventos
+        btnsales.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Buscar por idseller y recuperar todos los datos
+                db.collection("seller")
+                        .whereEqualTo("idseller", idseller.getText().toString())
+                        .get()
+                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    if (!task.getResult().isEmpty()) {
+                                        for (QueryDocumentSnapshot document: task.getResult()){
+                                            mTotalcomision = String.valueOf(document.getDouble("totalcomision"));
+                                        }
+                                        //Ir a ventas con el parametro de idseller
+                                        //starActivity(new Intent(getApplicationContext(),sales.class));
+                                        Intent iSales = new Intent(getApplicationContext(),sales.class);
+                                        iSales.putExtra("eidseller",idseller.getText().toString());
+                                        iSales.putExtra("eTotalcomision",mTotalcomision);
+                                        startActivity(iSales);
+
+                                    }
+                                    else {
+                                        Toast.makeText(getApplicationContext(), "Id vendedor NO EXISTE...", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            }
+                        });
+            }
+                        });
 
         btndelete.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -162,6 +196,10 @@ public class MainActivity extends AppCompatActivity {
                                                                 @Override
                                                                 public void onSuccess(DocumentReference documentReference) {
                                                                     Toast.makeText(getApplicationContext(), "Datos ingresados correctamente", Toast.LENGTH_SHORT).show();
+                                                                    idseller.setText("");
+                                                                    fullname.setText("");
+                                                                    email.setText("");
+                                                                    password.setText("");
                                                                 }
                                                             })
                                                             .addOnFailureListener(new OnFailureListener() {
