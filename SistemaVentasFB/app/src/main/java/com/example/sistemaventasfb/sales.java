@@ -1,8 +1,11 @@
 package com.example.sistemaventasfb;
 
+import static java.lang.Double.parseDouble;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -11,6 +14,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -36,7 +40,8 @@ public class sales extends AppCompatActivity {
         ImageButton btnback = findViewById(R.id.btnback);
         //Recibir la identificacion enviada desde la actividad MainActivity
         idsellers.setText(getIntent().getStringExtra("eidseller"));
-        Toast.makeText(getApplicationContext(), "Totalcomision"+getIntent().getStringExtra("etotalcomision"), Toast.LENGTH_SHORT).show();
+        idAutomatic = getIntent().getStringExtra("eidautomatic");
+        mTotcomision = parseDouble(getIntent().getStringExtra("totalcomision"));
         //Eventos
         btnsavesale.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -51,7 +56,7 @@ public class sales extends AppCompatActivity {
                     cSales.put("idsale", idsale.getText().toString());
                     cSales.put("idseller", idsellers.getText().toString());
                     cSales.put("datesale", datesale.getText().toString());
-                    cSales.put("salevalue", salevalue.getText().toString());
+                    cSales.put("salevalue", parseDouble(salevalue.getText().toString()));
                     db.collection("sales")
                             .add(cSales)
                             .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
@@ -59,8 +64,17 @@ public class sales extends AppCompatActivity {
                                 public void onComplete(@NonNull Task<DocumentReference> task) {
                                     //Buscar el idseller para que retorne el total de la comisión actual
                                     //para acumular el total de la comisión con base en la comisión de la venta
+                                    Intent iMain = new Intent(getApplicationContext(),MainActivity.class);
+                                    db.collection("seller").document(idAutomatic)
+                                                    .update("totalcomision", mTotcomision + parseDouble(salevalue.getText().toString())*0.02)
+                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                @Override
+                                                                public void onSuccess(Void unused) {
+                                                                    Toast.makeText(getApplicationContext(), "Venta guardada correctamente...", Toast.LENGTH_SHORT).show();
+                                                                    startActivity(iMain);
+                                                                }
+                                                            });
 
-                                    Toast.makeText(getApplicationContext(), "Venta guardada correctamente...", Toast.LENGTH_SHORT).show();
                                     idsale.setText("");
                                     idsellers.setText("");
                                     datesale.setText("");

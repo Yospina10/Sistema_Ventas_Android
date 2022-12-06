@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         EditText fullname = findViewById(R.id.etfullname);
         EditText email= findViewById(R.id.etemail);
         EditText password = findViewById(R.id.etpassword);
-        TextView totalcomision = findViewById(R.id.tvtotalcomision);
+        TextView totalcomision = findViewById(R.id.totalcomision);
         ImageButton btnsave = findViewById(R.id.btnsave);
         ImageButton btnsearch = findViewById(R.id.btnsearch);
         ImageButton btnedit = findViewById(R.id.btnedit);
@@ -65,7 +65,8 @@ public class MainActivity extends AppCompatActivity {
                                         //starActivity(new Intent(getApplicationContext(),sales.class));
                                         Intent iSales = new Intent(getApplicationContext(),sales.class);
                                         iSales.putExtra("eidseller",idseller.getText().toString());
-                                        iSales.putExtra("eTotalcomision",mTotalcomision);
+                                        iSales.putExtra("totalcomision",mTotalcomision);
+                                        iSales.putExtra("eidautomatic", idAutomatic);
                                         startActivity(iSales);
 
                                     }

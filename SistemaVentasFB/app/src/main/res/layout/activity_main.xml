@@ -105,7 +105,7 @@
         android:inputType="textPassword" />
 
     <TextView
-        android:id="@+id/tvtotalcomision"
+        android:id="@+id/totalcomision"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
