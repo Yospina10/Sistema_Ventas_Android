@@ -18,6 +18,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -57,6 +58,41 @@ public class sales extends AppCompatActivity {
                     cSales.put("idseller", idsellers.getText().toString());
                     cSales.put("datesale", datesale.getText().toString());
                     cSales.put("salevalue", parseDouble(salevalue.getText().toString()));
+
+                    db.collection("sale")
+                            .whereEqualTo("idsale", idsale.getText().toString())
+                            .get()
+                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        if (!task.getResult().isEmpty()) {
+                                            Toast.makeText(getApplicationContext(),"Usuario Existente", Toast.LENGTH_SHORT).show();
+
+                                        } else {
+                                            //Agregar el documento a la coleccion seller a través de la tabla temporal seller
+                                            db.collection("seller")
+                                                    .add(cSales)
+                                                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                                        @Override
+                                                        public void onSuccess(DocumentReference documentReference) {
+                                                            Toast.makeText(getApplicationContext(), "Datos ingresados correctamente", Toast.LENGTH_SHORT).show();
+                                                            idsale.setText("");
+                                                            idsellers.setText("");
+                                                            datesale.setText("");
+
+                                                        }
+                                                    })
+                                                    .addOnFailureListener(new OnFailureListener() {
+                                                        @Override
+                                                        public void onFailure(@NonNull Exception e) {
+                                                            Toast.makeText(getApplicationContext(), "Error al guardar los datos del vendedor...", Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    });
+                                        }
+                                    }
+                                }
+                            });
                     db.collection("sales")
                             .add(cSales)
                             .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
