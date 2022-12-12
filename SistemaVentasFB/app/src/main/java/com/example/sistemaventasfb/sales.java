@@ -59,7 +59,7 @@ public class sales extends AppCompatActivity {
                     cSales.put("datesale", datesale.getText().toString());
                     cSales.put("salevalue", parseDouble(salevalue.getText().toString()));
 
-                    db.collection("sale")
+                    db.collection("sales")
                             .whereEqualTo("idsale", idsale.getText().toString())
                             .get()
                             .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -67,66 +67,51 @@ public class sales extends AppCompatActivity {
                                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                     if (task.isSuccessful()) {
                                         if (!task.getResult().isEmpty()) {
-                                            Toast.makeText(getApplicationContext(),"Usuario Existente", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(getApplicationContext(), "Numero de Venta Existente", Toast.LENGTH_SHORT).show();
 
                                         } else {
                                             //Agregar el documento a la coleccion seller a través de la tabla temporal seller
-                                            db.collection("seller")
+
+                                            db.collection("sales")
                                                     .add(cSales)
-                                                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                                    .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
                                                         @Override
-                                                        public void onSuccess(DocumentReference documentReference) {
-                                                            Toast.makeText(getApplicationContext(), "Datos ingresados correctamente", Toast.LENGTH_SHORT).show();
+                                                        public void onComplete(@NonNull Task<DocumentReference> task) {
+                                                            //Buscar el idseller para que retorne el total de la comisión actual
+                                                            //para acumular el total de la comisión con base en la comisión de la venta
+                                                            Intent iMain = new Intent(getApplicationContext(), MainActivity.class);
+                                                            db.collection("seller").document(idAutomatic)
+                                                                    .update("totalcomision", mTotcomision + parseDouble(salevalue.getText().toString()) * 0.02)
+                                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                        @Override
+                                                                        public void onSuccess(Void unused) {
+                                                                            Toast.makeText(getApplicationContext(), "Venta guardada correctamente...", Toast.LENGTH_SHORT).show();
+                                                                            startActivity(iMain);
+                                                                        }
+                                                                    });
+
                                                             idsale.setText("");
                                                             idsellers.setText("");
                                                             datesale.setText("");
-
+                                                            salevalue.setText("");
                                                         }
                                                     })
                                                     .addOnFailureListener(new OnFailureListener() {
                                                         @Override
                                                         public void onFailure(@NonNull Exception e) {
-                                                            Toast.makeText(getApplicationContext(), "Error al guardar los datos del vendedor...", Toast.LENGTH_SHORT).show();
+                                                            Toast.makeText(getApplicationContext(), "No se guardó la venta...", Toast.LENGTH_SHORT).show();
                                                         }
                                                     });
                                         }
                                     }
                                 }
                             });
-                    db.collection("sales")
-                            .add(cSales)
-                            .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentReference> task) {
-                                    //Buscar el idseller para que retorne el total de la comisión actual
-                                    //para acumular el total de la comisión con base en la comisión de la venta
-                                    Intent iMain = new Intent(getApplicationContext(),MainActivity.class);
-                                    db.collection("seller").document(idAutomatic)
-                                                    .update("totalcomision", mTotcomision + parseDouble(salevalue.getText().toString())*0.02)
-                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                                @Override
-                                                                public void onSuccess(Void unused) {
-                                                                    Toast.makeText(getApplicationContext(), "Venta guardada correctamente...", Toast.LENGTH_SHORT).show();
-                                                                    startActivity(iMain);
-                                                                }
-                                                            });
-
-                                    idsale.setText("");
-                                    idsellers.setText("");
-                                    datesale.setText("");
-                                    salevalue.setText("");
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Toast.makeText(getApplicationContext(), "No se guardó la venta...", Toast.LENGTH_SHORT).show();
-                                }
-                            });
                 }
 
+                    else{
+                        Toast.makeText(getApplicationContext(),"Ingrese un numero de venta valido...", Toast.LENGTH_SHORT).show();
+                    }
             }
         });
     }
 }
-
